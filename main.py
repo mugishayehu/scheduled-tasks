@@ -14,7 +14,7 @@ import os
 
 # import os and use it to get the Github repository secrets
 MY_EMAIL = os.environ.get("MY_EMAIL")
-MY_PASSWORD = os.environ.get("MY_PASSWORD")
+PASSWORD = os.environ.get("PASSWORD")
 
 data = pandas.read_csv("./birthdays.csv")
 
@@ -39,7 +39,7 @@ if not bd_row.empty:
 
         with smtplib.SMTP("smtp.gmail.com", 587) as connection:
             connection.starttls()
-            connection.login(user=MY_EMAIL ,password=MY_PASSWORD)
+            connection.login(user=MY_EMAIL ,password=PASSWORD)
             connection.sendmail(from_addr=MY_EMAIL,to_addrs=person_email,
                                 msg=f"subject:Happy Birthday\n\n {data_file}")
 
