@@ -13,26 +13,34 @@ import smtplib
 import os
 
 # import os and use it to get the Github repository secrets
-MY_EMAIL = os.environ.get("MY_EMAIL")
-MY_PASSWORD = os.environ.get("MY_PASSWORD")
+my_email = os.environ.get("my_email")
+password = os.environ.get("password")
 
-today = datetime.now()
-today_tuple = (today.month, today.day)
+data = pandas.read_csv("./birthdays.csv")
 
-data = pandas.read_csv("birthdays.csv")
-birthdays_dict = {(data_row["month"], data_row["day"])                  : data_row for (index, data_row) in data.iterrows()}
-if today_tuple in birthdays_dict:
-    birthday_person = birthdays_dict[today_tuple]
-    file_path = f"letter_templates/letter_{random.randint(1, 3)}.txt"
-    with open(file_path) as letter_file:
-        contents = letter_file.read()
-        contents = contents.replace("[NAME]", birthday_person["name"])
+now = dt.datetime.now()
+today_month = now.month
+today_day = now.day
+today_tuple = (today_month, today_day)
+bd_row = data[(data.month==today_month) & (data.day==today_day)]
 
-    with smtplib.SMTP("YOUR EMAIL PROVIDER SMTP SERVER ADDRESS") as connection:
-        connection.starttls()
-        connection.login(MY_EMAIL, MY_PASSWORD)
-        connection.sendmail(
-            from_addr=MY_EMAIL,
-            to_addrs=birthday_person["email"],
-            msg=f"Subject:Happy Birthday!\n\n{contents}"
-        )
+if not bd_row.empty:
+    for index, row in bd_row.iterrows():
+        person_born = row["name"]
+        person_email = row["email"]
+        birthday = (row["month"], row["day"])
+    letter_list = ["letter_1.txt", "letter_2.txt","letter_3.txt" ]
+    random_letter = random.choice(letter_list)
+    
+    if today_tuple == birthday:
+        with open(f"./letter_templates/{random_letter}") as file_folder:
+            file = file_folder.read()
+            data_file = file.replace("[NAME]", person_born)
+
+        with smtplib.SMTP("smtp.gmail.com", 587) as connection:
+            connection.starttls()
+            connection.login(user=my_email ,password=password)
+            connection.sendmail(from_addr=my_email,to_addrs=person_email,
+                                msg=f"subject:Happy Birthday\n\n {data_file}")
+
+
